@@ -13,16 +13,15 @@ public interface JsonToMysqlMapper {
 
     /**
      * 新增表
-     * @param jsonObject
-     * @param tableName
-     * @return
+     * @param jsonObject json数据
+     * @param tableName 表名
      */
     void addTable(JSONObject jsonObject, String tableName);
 
     /**
      * 新增数据
-     * @param jsonObject
-     * @param tableName
+     * @param jsonObject json数据
+     * @param tableName 表名
      */
     void insert(JSONObject jsonObject, String tableName);
 

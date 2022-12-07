@@ -75,12 +75,12 @@ public class JsonToMysqlProcessServiceImpl implements JsonToMysqlProcessService 
     /**
      * 读取指定路径下的json数据，一行一行的进行解析
      *
-     * @param jsonObject
-     * @param tableNames
+     * @param jsonObject json数据
+     * @param tableNames 表名
      */
     @Override
-    public ResultObject fileToJson(JSONObject jsonObject, List<String> tableNames) {
-        ResultObject resultObject = new ResultObject<>();
+    public ResultObject<String> fileToJson(JSONObject jsonObject, List<String> tableNames) {
+        ResultObject<String> resultObject = new ResultObject<>();
         String path = jsonObject.getString("path");
         System.out.println(path);
         Reader reader = null;
@@ -125,9 +125,8 @@ public class JsonToMysqlProcessServiceImpl implements JsonToMysqlProcessService 
     /**
      * 遍历整条json数据
      *
-     * @param jsonObject
-     * @param tableNames
-     * @return
+     * @param jsonObject json数据
+     * @param tableNames 表名
      */
     public void jsonToTable(JSONObject jsonObject, List<String> tableNames) {
         int num = 0;
@@ -166,7 +165,7 @@ public class JsonToMysqlProcessServiceImpl implements JsonToMysqlProcessService 
      * @param tableNames 表名
      * @return 返回表名下标
      */
-    public Integer facArrary(List<String> lists, int num, List<String> tableNames) {
+    public Integer facArray(List<String> lists, int num, List<String> tableNames) {
         num = num + 1;
         // 循环处理子表的数组数据
         for (String list : lists) {
@@ -183,7 +182,7 @@ public class JsonToMysqlProcessServiceImpl implements JsonToMysqlProcessService 
             if (charArray == map.getValue().toString().toCharArray()[0]) {
                 // map对象转换为JOSN字符串
                 List<String> lists = JSONObject.parseArray(map.getValue().toString(), String.class);
-                num = facArrary(lists, num, tableNames);
+                num = facArray(lists, num, tableNames);
             }
             if (ch == map.getValue().toString().toCharArray()[0]) {
                 // map对象转换为JSON字符串

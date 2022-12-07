@@ -13,14 +13,17 @@ public interface JsonToMysqlProcessService {
 
     /**
      * json表创建
-     * @param jsonObject
-     * @return
+     * @param jsonObject json数据
+     * @return 表名
      */
     List<String> jsonCreateTable(JSONObject jsonObject);
 
+
     /**
      * 读取文件内容
-     * @param jsonObject
+     * @param jsonObject json数据
+     * @param tableNames 表名
+     * @return 结果
      */
-    ResultObject fileToJson(JSONObject jsonObject , List<String> tableNames);
+    ResultObject<String> fileToJson(JSONObject jsonObject , List<String> tableNames);
 }
