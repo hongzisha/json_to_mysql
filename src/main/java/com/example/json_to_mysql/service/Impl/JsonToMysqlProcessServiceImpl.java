@@ -9,9 +9,8 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author TanHao
@@ -34,8 +33,7 @@ public class JsonToMysqlProcessServiceImpl implements JsonToMysqlProcessService 
     public List<String> jsonCreateTable(JSONObject jsonObject) {
         // 判断主表是否存在，并将主表创建
         String masterTableString = (jsonObject.getString("masterTableKey"));
-        System.out.println(masterTableString);
-        List<String> tableNames = new ArrayList<>();
+        String[] tableNamesArray = new String[100];
         if (masterTableString.length() > 0) {
             // 将主表的key的json格式转换为json对象
             JSONObject masterTableKey = JSONObject.parseObject(masterTableString);
@@ -46,7 +44,7 @@ public class JsonToMysqlProcessServiceImpl implements JsonToMysqlProcessService 
             // 创建主表
             jsonToMysqlMapper.addTable(masterTableColumn, masterTableName);
             // 记录创建的表名
-            tableNames.add(masterTableName);
+            tableNamesArray[0] = masterTableName;
         }
 
         // 判断子表是否存在，并将子表创建
@@ -65,11 +63,14 @@ public class JsonToMysqlProcessServiceImpl implements JsonToMysqlProcessService 
                 // 创建子表
                 jsonToMysqlMapper.addTable(sublistTableColumn, sublistTableName);
                 // 记录创建的表名
-                tableNames.add(sublistTableName);
+                tableNamesArray[Integer.parseInt(keys)] = sublistTableName;
             });
         }
-
-        return tableNames;
+        ArrayList<String> tableNames = new ArrayList<>(tableNamesArray.length);
+        Collections.addAll(tableNames, tableNamesArray);
+        // 判断list集合中是否为空，防止下标越界异常
+        // 使用filter过滤掉为null的数据
+        return tableNames.stream().filter(Objects::nonNull).collect(Collectors.toList());
     }
 
     /**
@@ -82,7 +83,6 @@ public class JsonToMysqlProcessServiceImpl implements JsonToMysqlProcessService 
     public ResultObject<String> fileToJson(JSONObject jsonObject, List<String> tableNames) {
         ResultObject<String> resultObject = new ResultObject<>();
         String path = jsonObject.getString("path");
-        System.out.println(path);
         Reader reader = null;
         BufferedReader bf = null;
         int num = 0;
@@ -91,9 +91,7 @@ public class JsonToMysqlProcessServiceImpl implements JsonToMysqlProcessService 
             bf = new BufferedReader(reader);
             String str;
             while ((str = bf.readLine()) != null) {
-                System.out.println(str);
                 JSONObject stringToJson = JSONObject.parseObject(str);
-                System.out.println(stringToJson);
                 jsonToTable(stringToJson, tableNames);
                 num++;
             }
@@ -150,7 +148,6 @@ public class JsonToMysqlProcessServiceImpl implements JsonToMysqlProcessService 
         num = num + 1;
         // 表创建成功后，将对应的数据插入
         jsonToMysqlMapper.insert(jsonObject, tableNames.get(num));
-        System.out.println(tableNames.get(num));
         // 判断下面是否还有子表
         num = function(jsonObject, num, tableNames, 2);
         return num;
@@ -180,7 +177,7 @@ public class JsonToMysqlProcessServiceImpl implements JsonToMysqlProcessService 
             char ch = '{';
             char charArray = '[';
             if (charArray == map.getValue().toString().toCharArray()[0]) {
-                // map对象转换为JOSN字符串
+                // map对象转换为JSON字符串
                 List<String> lists = JSONObject.parseArray(map.getValue().toString(), String.class);
                 num = facArray(lists, num, tableNames);
             }

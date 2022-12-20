@@ -30,10 +30,9 @@ public class JsonToMysqlController {
     @PostMapping("/JsonToMysql")
     public ResultObject<String> jsonToMysql(@RequestBody String request) {
         JSONObject jsonObject = JSONObject.parseObject(request);
-        System.out.println(jsonObject.getString("path"));
         // 创建表，并返回创建的表名
         List<String> tableNames = jsonToMysqlProcess.jsonCreateTable(jsonObject);
-        System.out.println("tableNames" + tableNames);
+        System.out.println(tableNames);
         // 将数据插入对应表中
         return jsonToMysqlProcess.fileToJson(jsonObject , tableNames);
     }
